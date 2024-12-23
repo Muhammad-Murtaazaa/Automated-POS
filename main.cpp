@@ -24,6 +24,22 @@ void menus::inventory()
     cout << "4) Show Inventory" << endl;
     cout << "5) Exit" << endl;
 }
-int main() {
+class inventory
+{
+    private:
+        int id;
+        int price;
+        int quantity;
+        string name;
+        inventory *next;
+        inventory *prev;
+    public:
+        void additem();
+        void deleteitem();
+        void updateitem();
+        void showinventory();
+};
+int main() 
+{
 
 }
