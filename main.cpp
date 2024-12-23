@@ -2,9 +2,9 @@
 using namespace std;
 class menus
 {
-    public:
-        void mainmenu();
-        void inventory();
+public:
+    void mainmenu();
+    void inventory();
 };
 void menus::mainmenu()
 {
@@ -12,7 +12,7 @@ void menus::mainmenu()
     cout << "1) Inventory" << endl;
     cout << "2) Generate Bill" << endl;
     cout << "4) Show Stock" << endl;
-    cout<<"5) Show sales"<<endl;
+    cout << "5) Show sales" << endl;
     cout << "3) Exit" << endl;
 }
 void menus::inventory()
@@ -26,20 +26,53 @@ void menus::inventory()
 }
 class inventory
 {
-    private:
-        int id;
-        int price;
-        int quantity;
-        string name;
-        inventory *next;
-        inventory *prev;
-    public:
-        void additem();
-        void deleteitem();
-        void updateitem();
-        void showinventory();
+private:
+    int id;
+    int price;
+    int quantity;
+    string name;
+    inventory *next;
+    inventory *prev;
+
+public:
+    inventory()
+    {
+        cout << "Enter ID: ";
+        cin >> id;
+        cout << "Enter Name: ";
+        cin >> name;
+        cout << "Enter Price: ";
+        cin >> price;
+        cout << "Enter Quantity: ";
+        cin >> quantity;
+        next = NULL;
+        prev = NULL;
+    }
+    void additem(inventory *head);
+    void deleteitem();
+    void updateitem();
+    void showinventory();
 };
-int main() 
+void inventory::additem(inventory *head)
 {
 
+    inventory *newitem = new inventory();
+    if (head == NULL)
+    {
+        head = newitem;
+    }
+    else
+    {
+        inventory *temp = head;
+        while (temp->next != NULL)
+        {
+            temp = temp->next;
+        }
+        temp->next = newitem;
+        newitem->prev = temp;
+    }
+}
+
+int main()
+{
 }
