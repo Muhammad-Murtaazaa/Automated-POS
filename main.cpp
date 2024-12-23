@@ -72,7 +72,6 @@ void inventory::additem(inventory *head)
         newitem->prev = temp;
     }
 }
-
 int main()
 {
 }
