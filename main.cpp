@@ -26,7 +26,7 @@ void menus::inventory()
 }
 class inventory
 {
-private:
+public:
     int id;
     int price;
     int quantity;
@@ -51,7 +51,7 @@ public:
     void additem(inventory *head);
     void deleteitem();
     void updateitem();
-    void showinventory();
+    void showinventory(inventory* &head);
 };
 void inventory::additem(inventory *head)
 {
@@ -70,6 +70,26 @@ void inventory::additem(inventory *head)
         }
         temp->next = newitem;
         newitem->prev = temp;
+    }
+}
+void deleteitem()
+{
+
+}
+void updateitem()
+{
+
+}
+void showinventory(inventory* &head)
+{
+    inventory* temp=head;
+    while(temp!=NULL)
+    {
+        cout<<"ID: "<<temp->id<<endl;
+        cout<<"Name: "<<temp->name<<endl;
+        cout<<"Price: "<<temp->price<<endl;
+        cout<<"Quantity: "<<temp->quantity<<endl;
+        temp=temp->next;
     }
 }
 int main()
