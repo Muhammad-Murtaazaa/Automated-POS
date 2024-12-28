@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <iomanip>
 using namespace std;
 
 class menus {
@@ -117,12 +118,21 @@ void inventory::showInventory(inventory* head) {
         return;
     }
 
+    // Print the table heade1
+    
+    cout << left << setw(10) << "ID"
+         << setw(20) << "Name"
+         << setw(10) << "Price"
+         << setw(10) << "Quantity" << endl;
+    cout << string(50, '-') << endl;
+
+    // Print each inventory item in a tabular format
     inventory* temp = head;
     while (temp != NULL) {
-        cout << "\nID: " << temp->id
-             << "\nName: " << temp->name
-             << "\nPrice: " << temp->price
-             << "\nQuantity: " << temp->quantity << endl;
+        cout << left << setw(10) << temp->id
+             << setw(20) << temp->name
+             << setw(10) << temp->price
+             << setw(10) << temp->quantity << endl;
         temp = temp->next;
     }
 }
