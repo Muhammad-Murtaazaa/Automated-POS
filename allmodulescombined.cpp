@@ -7,7 +7,7 @@ using namespace std;
 
 const int MAX_BILL_ITEMS = 100;
 
-// Forward declare Inventory and BillingSystem classes
+
 class Inventory;
 class BillingSystem;
 
@@ -382,34 +382,30 @@ public:
 
     void addProduct(string name, double price, int quantity)
     {
-        total += price * quantity;
-        cout << "Added to bill: " << name << " | Quantity: " << quantity << " | Subtotal: " << price * quantity << endl;
-        undoRedoSystem.performAction("Add product to bill: " + name);
+        double amount = price * quantity;
+        total += amount;
+        cout << "Added product: " << name << " | Quantity: " << quantity << " | Price: " << price << endl;
+        undoRedoSystem.performAction("Add product to bill: " + name + " | Quantity: " + to_string(quantity));
     }
 
-    void finalizeBill(double payment)
+    void applyDiscount(double discountPercent)
     {
-        double tax = total * taxRate;
-        double grandTotal = total + tax;
-        cout << "Total: " << total << endl;
-        cout << "Tax: " << tax << endl;
-        cout << "Grand Total: " << grandTotal << endl;
+        double discountAmount = total * (discountPercent / 100);
+        total -= discountAmount;
+        cout << "Applied discount: " << discountPercent << "% | Discount: " << discountAmount << endl;
+        undoRedoSystem.performAction("Apply discount to bill: " + to_string(discountPercent) + "%");
+    }
 
-        if (payment < grandTotal)
-        {
-            cout << "Insufficient payment! Bill not completed." << endl;
-            return;
-        }
-
-        double change = payment - grandTotal;
-        cout << "Payment received: " << payment << endl;
-        cout << "Change: " << change << endl;
-
-        totalSales += grandTotal;
-        undoRedoSystem.performAction("Finalize bill. Total: " + to_string(grandTotal));
-
-        FeedbackSystem feedbackSystem;
-        feedbackSystem.collectFeedback();
+    void printBill()
+    {
+        cout << "\n==================== BILL =====================" << endl;
+        cout << "Total before tax: " << total << endl;
+        double taxAmount = total * taxRate;
+        cout << "Tax (" << taxRate * 100 << "%): " << taxAmount << endl;
+        total += taxAmount;
+        cout << "Total after tax: " << total << endl;
+        totalSales += total;
+        cout << "===============================================" << endl;
     }
 
     void undoAction()
@@ -428,50 +424,6 @@ public:
     }
 };
 
-// Menu system for interacting with the user
-void showMainMenu(Inventory& inventory, BillingSystem& billingSystem)
-{
-    int choice;
-    do
-    {
-        cout << "\n============== Main Menu ==============" << endl;
-        cout << "1. Manage Inventory" << endl;
-        cout << "2. Billing System" << endl;
-        cout << "3. View Inventory" << endl;
-        cout << "4. Undo Last Action" << endl;
-        cout << "5. Redo Last Action" << endl;
-        cout << "0. Exit" << endl;
-        cout << "Enter your choice: ";
-        cin >> choice;
-        cin.ignore();  // To clear the input buffer
-        
-        switch (choice)
-        {
-        case 1:
-            showInventoryMenu(inventory);
-            break;
-        case 2:
-            showBillingMenu(billingSystem);
-            break;
-        case 3:
-            inventory.displayStock();
-            break;
-        case 4:
-            inventory.undoAction();
-            break;
-        case 5:
-            inventory.redoAction();
-            break;
-        case 0:
-            cout << "Exiting the system..." << endl;
-            break;
-        default:
-            cout << "Invalid choice, please try again." << endl;
-            break;
-        }
-    } while (choice != 0);
-}
-
 void showInventoryMenu(Inventory& inventory)
 {
     int choice;
@@ -481,44 +433,84 @@ void showInventoryMenu(Inventory& inventory)
         cout << "1. Add Product" << endl;
         cout << "2. Remove Product" << endl;
         cout << "3. Update Product" << endl;
-        cout << "4. Apply Discount to Product" << endl;
-        cout << "0. Back to Main Menu" << endl;
+        cout << "4. Apply Discount" << endl;
+        cout << "5. View Inventory" << endl;
+        cout << "6. Undo Last Action" << endl;
+        cout << "7. Redo Last Action" << endl;
+        cout << "0. Return to Main Menu" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
         cin.ignore();  // To clear the input buffer
         
-        int id;
-        string name;
-        double price;
-        int stock;
-        double discountPercent;
-        
         switch (choice)
         {
         case 1:
-            cout << "Enter product ID, name, price, and stock: ";
-            cin >> id >> name >> price >> stock;
-            inventory.addProduct(id, name, price, stock);
+            {
+                int id, stock;
+                string name;
+                double price;
+                cout << "Enter product ID: ";
+                cin >> id;
+                cin.ignore();
+                cout << "Enter product name: ";
+                getline(cin, name);
+                cout << "Enter product price: ";
+                cin >> price;
+                cout << "Enter product stock: ";
+                cin >> stock;
+                inventory.addProduct(id, name, price, stock);
+            }
             break;
         case 2:
-            cout << "Enter product ID to remove: ";
-            cin >> id;
-            inventory.removeProduct(id);
+            {
+                int id;
+                cout << "Enter product ID to remove: ";
+                cin >> id;
+                inventory.removeProduct(id);
+            }
             break;
         case 3:
-            cout << "Enter product ID, new name, price, and stock: ";
-            cin >> id >> name >> price >> stock;
-            inventory.updateProduct(id, name, price, stock);
+            {
+                int id, stock;
+                string name;
+                double price;
+                cout << "Enter product ID to update: ";
+                cin >> id;
+                cin.ignore();
+                cout << "Enter new product name (or leave empty to skip): ";
+                getline(cin, name);
+                cout << "Enter new product price (-1 to skip): ";
+                cin >> price;
+                cout << "Enter new product stock (-1 to skip): ";
+                cin >> stock;
+                inventory.updateProduct(id, name, price, stock);
+            }
             break;
         case 4:
-            cout << "Enter product ID and discount percentage: ";
-            cin >> id >> discountPercent;
-            inventory.applyDiscountToProduct(id, discountPercent);
+            {
+                int id;
+                double discount;
+                cout << "Enter product ID to apply discount: ";
+                cin >> id;
+                cout << "Enter discount percentage: ";
+                cin >> discount;
+                inventory.applyDiscountToProduct(id, discount);
+            }
+            break;
+        case 5:
+            inventory.displayStock();
+            break;
+        case 6:
+            inventory.undoAction();
+            break;
+        case 7:
+            inventory.redoAction();
             break;
         case 0:
+            cout << "Returning to main menu..." << endl;
             break;
         default:
-            cout << "Invalid choice, please try again." << endl;
+            cout << "Invalid choice, try again!" << endl;
             break;
         }
     } while (choice != 0);
@@ -529,52 +521,116 @@ void showBillingMenu(BillingSystem& billingSystem)
     int choice;
     do
     {
-        cout << "\n============== Billing System ==============" << endl;
+        cout << "\n============== Billing Menu ==============" << endl;
         cout << "1. Add Product to Bill" << endl;
-        cout << "2. Finalize Bill" << endl;
-        cout << "3. Undo Last Action" << endl;
-        cout << "4. Redo Last Action" << endl;
-        cout << "0. Back to Main Menu" << endl;
+        cout << "2. Apply Discount" << endl;
+        cout << "3. Print Bill" << endl;
+        cout << "4. Undo Last Action" << endl;
+        cout << "5. Redo Last Action" << endl;
+        cout << "0. Return to Main Menu" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
         cin.ignore();  // To clear the input buffer
         
-        string name;
-        double price;
-        int quantity;
-        double payment;
-
         switch (choice)
         {
         case 1:
-            cout << "Enter product name, price, and quantity: ";
-            cin >> name >> price >> quantity;
-            billingSystem.addProduct(name, price, quantity);
+            {
+                string name;
+                double price;
+                int quantity;
+                cout << "Enter product name: ";
+                getline(cin, name);
+                cout << "Enter product price: ";
+                cin >> price;
+                cout << "Enter product quantity: ";
+                cin >> quantity;
+                billingSystem.addProduct(name, price, quantity);
+            }
             break;
         case 2:
-            cout << "Enter payment amount: ";
-            cin >> payment;
-            billingSystem.finalizeBill(payment);
+            {
+                double discount;
+                cout << "Enter discount percentage: ";
+                cin >> discount;
+                billingSystem.applyDiscount(discount);
+            }
             break;
         case 3:
-            billingSystem.undoAction();
+            billingSystem.printBill();
             break;
         case 4:
+            billingSystem.undoAction();
+            break;
+        case 5:
             billingSystem.redoAction();
             break;
         case 0:
+            cout << "Returning to main menu..." << endl;
+            break;
+        default:
+            cout << "Invalid choice, try again!" << endl;
+            break;
+        }
+    } while (choice != 0);
+}
+
+void showNewMainMenu(Inventory& inventory, BillingSystem& billingSystem)
+{
+    int choice;
+    do
+    {
+        cout << "\n============== Welcome to the System ==============" << endl;
+        cout << "1. Enter Point of Sale System" << endl;
+        cout << "2. About the System" << endl;
+        cout << "3. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+        cin.ignore();  // To clear the input buffer
+        
+        switch (choice)
+        {
+        case 1:
+            int subChoice;
+            cout << "\n1. Manage Inventory\n2. Manage Billing\nEnter your choice: ";
+            cin >> subChoice;
+            cin.ignore();
+            if (subChoice == 1)
+            {
+                showInventoryMenu(inventory); // Show the inventory management menu
+            }
+            else if (subChoice == 2)
+            {
+                showBillingMenu(billingSystem); // Show the billing system menu
+            }
+            else
+            {
+                cout << "Invalid choice! Returning to main menu." << endl;
+            }
+            break;
+        case 2:
+            cout << "\nSystem Information:\n";
+            cout << "System Developed by: Your Name\n";
+            cout << "Student ID: Your ID\n";
+            cout << "About: This is a Point of Sale (POS) system with inventory management and billing functionalities.\n";
+            break;
+        case 3:
+            cout << "Exiting the system..." << endl;
             break;
         default:
             cout << "Invalid choice, please try again." << endl;
             break;
         }
-    } while (choice != 0);
+    } while (choice != 3); // Exit the loop if the user selects 3
 }
 
 int main()
 {
     Inventory inventory;
     BillingSystem billingSystem;
-    showMainMenu(inventory, billingSystem);
+
+    // Call the main menu to run the system
+    showNewMainMenu(inventory, billingSystem);
+
     return 0;
 }
