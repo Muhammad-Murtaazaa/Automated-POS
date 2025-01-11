@@ -1,0 +1,8 @@
+Customer Bill
+------------------------------
+ProductID Quantity       Price     
+------------------------------
+------------------------------
+Total (before tax): $0.00
+Tax: $0.00
+Total (with tax): $0.00

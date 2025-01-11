@@ -2,160 +2,139 @@
 #include <string>
 #include <iomanip>
 #include <fstream>
-#include <ctime>
+#include <stdexcept>
 using namespace std;
+
 template <class T>
-class stack
+class stack 
 {
 private:
-struct node
-{
-    T data;
-    node *next;
-    node(T data)
+    struct node 
     {
-        this->data = data;
-        next = nullptr;
-    }
-};
-    node *top;
+        T data;
+        node* next;
+        node(T data)
+        {
+            this->data = data;
+            next = nullptr;
+        }
+    };
+    node* topNode; 
+
 public:
     stack()
     {
-        top = nullptr;
+        topNode = nullptr;
     }
-    void push(string data)
+
+    void push(T data) 
     {
-        node<string> *newnode = new node<string>(data);
-        newnode->next = top;
-        top = newnode;
+        node* newNode = new node(data);
+        newNode->next = topNode;
+        topNode = newNode;
     }
-    void pop()
+
+    void pop() 
     {
-        if (top == nullptr)
+        if (topNode == nullptr) 
         {
             cout << "Stack is empty!" << endl;
             return;
         }
-        node<string> *temp = top;
-        top = top->next;
+        node* temp = topNode;
+        topNode = topNode->next;
         delete temp;
     }
-    string peek()
+
+    T peek() 
     {
-        if (top == nullptr)
+        if (topNode == nullptr) 
         {
             throw runtime_error("Stack is empty");
         }
-        return top->data;
+        return topNode->data;
     }
-    bool isEmpty()
+
+    bool isEmpty() 
     {
-        return top == nullptr;
+        return topNode == nullptr;
     }
-    void top()
+
+    void top() 
     {
-        if (isEmpty())
+        if (isEmpty()) 
         {
             cout << "Stack is empty!" << endl;
             return;
         }
-        cout << "Top of the stack: " << top->data << endl;
+        cout << "Top of the stack: " << topNode->data << endl;
+    }
+
+    ~stack() 
+    {
+        while (!isEmpty()) 
+        {
+            pop();
+        }
     }
 };
-class undoredo
+
+struct Action 
 {
-private:
-    stack<string> undostack;
-    stack<string> redostack;
-public:
-    void performaction(string action)
+    string type; 
+    int id;
+    string name;
+    double price;
+    int stock;
+
+    Action(string type, int id, string name = "", double price = 0.0, int stock = 0)
     {
-        undostack.push(action);
-        while (!redostack.isEmpty())
-        {
-            redostack.pop();
-        }
-        cout << "Performed action: " << action << endl;
-    }
-    void undo()
-    {
-        if (undostack.isEmpty())
-        {
-            cout << "Nothing to undo!" << endl;
-            return;
-        }
-        string lastaction = undostack.peek();
-        undostack.pop();
-        redostack.push(lastaction);
-        cout << "Undone action: " << lastaction << endl;
-    }
-    void redo()
-    {
-        if (redostack.isEmpty())
-        {
-            cout << "Nothing to redo!" << endl;
-            return;
-        }
-        string lastundone = redostack.peek();
-        redostack.pop();
-        undostack.push(lastundone);
-        cout << "Redone action: " << lastundone << endl;
-    }
-    void printstate()
-    {
-        cout << "Undo Stack: ";
-        stack<string> tempundo = undostack;
-        while (!tempundo.isEmpty())
-        {
-            cout << tempundo.peek() << " ";
-            tempundo.pop();
-        }
-        cout << "\nRedo Stack: ";
-        stack<string> tempredo = redostack;
-        while (!tempredo.isEmpty())
-        {
-            cout << tempredo.peek() << " ";
-            tempredo.pop();
-        }
-        cout << "\n";
+        this->type = type;
+        this->id = id;
+        this->name = name;
+        this->price = price;
+        this->stock = stock;
     }
 };
-class product
+
+class product 
 {
 public:
     int id;
     string name;
     double price;
     int stock;
-    product *next;
-    product *prev;
+    product* next;
+    product* prev;
+
     product(int id, string name, double price, int stock)
     {
         this->id = id;
         this->name = name;
         this->price = price;
         this->stock = stock;
-        prev = next = nullptr;
+        next = prev = nullptr;
     }
 };
-class Inventory
+
+class Inventory 
 {
 private:
-    product *head;
+    product* head;
     int numberofproducts;
-
+    stack<Action> undoStack;
+    stack<Action> redoStack;
 public:
     Inventory()
     {
         head = nullptr;
         numberofproducts = 0;
     }
-    
-    void savestock() const
+
+    void savestock() const 
     {
         ofstream file("inventory.txt");
-        if (!file.is_open())
+        if (!file.is_open()) 
         {
             cout << "Error: Could not open the file to save inventory!" << endl;
             return;
@@ -167,8 +146,8 @@ public:
              << setw(10) << "Price" << endl;
         file << string(50, '-') << endl;
 
-        product *current = head;
-        while (current != NULL)
+        product* current = head;
+        while (current != nullptr) 
         {
             file << left << setw(10) << current->id
                  << setw(20) << current->name
@@ -178,18 +157,16 @@ public:
             current = current->next;
         }
 
-        file << string(50, '-') << endl;
-    
         file.close();
         cout << "Inventory successfully saved/updated to 'inventory.txt'." << endl;
     }
 
-    bool productexists(int id)
+    bool productexists(int id) 
     {
-        product *current = head;
-        while (current != NULL)
+        product* current = head;
+        while (current != nullptr) 
         {
-            if (current->id == id)
+            if (current->id == id) 
             {
                 return true;
             }
@@ -198,54 +175,59 @@ public:
         return false;
     }
 
-    void addproduct(int id, string name, double price, int stock)
+    void addproduct(int id, string name, double price, int stock) 
     {
-        if (productexists(id))
+        if (productexists(id)) 
         {
-            cout << "A product with ID " << id << " already exists !!!" << endl;
+            cout << "A product with ID " << id << " already exists!" << endl;
             cout << "Please enter a different ID" << endl;
             return;
         }
-        product *newproduct = new product(id, name, price, stock);
-        if (head == NULL)
+        product* newProduct = new product(id, name, price, stock);
+        if (head == nullptr) 
         {
-            head = newproduct;
-        }
-        else
+            head = newProduct;
+        } else 
         {
-            product *current = head;
-            while (current->next != NULL)
+            product* current = head;
+            while (current->next != nullptr) 
             {
                 current = current->next;
             }
-            current->next = newproduct;
-            newproduct->prev = current;
+            current->next = newProduct;
+            newProduct->prev = current;
         }
         numberofproducts++;
         cout << "Product added: " << name << " (ID: " << id << ")" << endl;
         savestock();
+
+        // Record the action for undo functionality
+        undoStack.push(Action("ADD", id, name, price, stock));
+        while (!redoStack.isEmpty()) 
+        {
+            redoStack.pop();
+        }
     }
 
-    product *findproduct(int id)
+    product* findproduct(int id) 
     {
-        product *current = head;
-        while (current != NULL)
+        product* current = head;
+        while (current != nullptr) 
         {
-            if (current->id == id)
+            if (current->id == id) 
             {
                 return current;
             }
             current = current->next;
         }
-        return NULL;
+        return nullptr;
     }
 
-    void displaystock() const
+    void displaystock() const 
     {
-        if (head == NULL)
+        if (head == nullptr) 
         {
-            cout << "No products in inventory !!!" << endl;
-            cout << "Please add some products to the inventory" << endl;
+            cout << "No products in inventory!" << endl;
             return;
         }
         cout << left << setw(10) << "ID"
@@ -253,8 +235,9 @@ public:
              << setw(10) << "Quantity"
              << setw(10) << "Price" << endl;
         cout << string(50, '-') << endl;
-        product *current = head;
-        while (current != NULL)
+
+        product* current = head;
+        while (current != nullptr) 
         {
             cout << left << setw(10) << current->id
                  << setw(20) << current->name
@@ -265,67 +248,35 @@ public:
         }
         cout << string(50, '-') << endl;
     }
-    void removeproduct(int id)
+
+    void removeproduct(int id) 
     {
-        product *current = head;
-        while (current != NULL)
+        product* current = head;
+        while (current != nullptr) 
         {
-            if (current->id == id)
+            if (current->id == id) 
             {
-                if (current->prev != NULL)
+                // Record the removed product for undo functionality
+                undoStack.push(Action("REMOVE", id, current->name, current->price, current->stock));
+                while (!redoStack.isEmpty()) 
+                {
+                    redoStack.pop();
+                }
+
+                if (current->prev != nullptr) 
                 {
                     current->prev->next = current->next;
-                }
-                else
+                } else 
                 {
                     head = current->next;
                 }
-                if (current->next != NULL)
+                if (current->next != nullptr) 
                 {
                     current->next->prev = current->prev;
                 }
                 cout << "Removed product: " << current->name << " (ID: " << id << ")" << endl;
                 delete current;
                 numberofproducts--;
-                return;
-            }
-            current = current->next;
-        }
-        cout << "Product with ID " << id << " not found." << endl;
-        savestock();
-    }
-    void updateproduct(int id, string name, double price, int stock)
-    {
-        product *current = head;
-        while (current != NULL)
-        {
-            if (current->id == id)
-            {
-                if (!name.empty())
-                    current->name = name;
-                if (price >= 0)
-                    current->price = price;
-                if (stock >= 0)
-                    current->stock = stock;
-                cout << "Updated product: " << current->name << " (ID: " << id << ")" << endl;
-                return;
-            }
-            current = current->next;
-            
-        }
-        cout << "Product with ID " << id << " not found." << endl;
-        savestock();
-    }
-    void applydiscounttoproduct(int id, double discountpercent)
-    {
-        product *current = head;
-        while (current != NULL)
-        {
-            if (current->id == id)
-            {
-                double discountamount = current->price * (discountpercent / 100);
-                current->price -= discountamount;
-                cout << "Applied " << discountpercent << "% discount. New price: " << current->price << endl;
                 savestock();
                 return;
             }
@@ -333,78 +284,167 @@ public:
         }
         cout << "Product with ID " << id << " not found." << endl;
     }
+
+    void updateproduct(int id, string name, double price, int stock) 
+    {
+        product* current = findproduct(id);
+        if (current != nullptr) 
+        {
+            if (!name.empty())
+                current->name = name;
+            if (price >= 0)
+                current->price = price;
+            if (stock >= 0)
+                current->stock = stock;
+            cout << "Updated product: " << current->name << " (ID: " << id << ")" << endl;
+            savestock();
+        } else 
+        {
+            cout << "Product with ID " << id << " not found." << endl;
+        }
+    }
+
+    void applydiscounttoproduct(int id, double discountPercent) 
+    {
+        product* current = findproduct(id);
+        if (current != nullptr) 
+        {
+            double discountAmount = current->price * (discountPercent / 100);
+            current->price -= discountAmount;
+            cout << "Applied " << discountPercent << "% discount. New price: " << current->price << endl;
+            savestock();
+        } else 
+        {
+            cout << "Product with ID " << id << " not found." << endl;
+        }
+    }
+
+    void undo() 
+    {
+        if (undoStack.isEmpty()) 
+        {
+            cout << "Nothing to undo!" << endl;
+            return;
+        }
+
+        Action lastAction = undoStack.peek();
+        undoStack.pop();
+
+        if (lastAction.type == "ADD") 
+        {
+            removeproduct(lastAction.id);
+            redoStack.push(lastAction);
+        } 
+        else if (lastAction.type == "REMOVE") 
+        {
+            addproduct(lastAction.id, lastAction.name, lastAction.price, lastAction.stock);
+            redoStack.push(lastAction);
+        }
+    }
+
+    void redo() 
+    {
+        if (redoStack.isEmpty()) 
+        {
+            cout << "Nothing to redo!" << endl;
+            return;
+        }
+
+        Action lastUndone = redoStack.peek();
+        redoStack.pop();
+
+        if (lastUndone.type == "ADD") 
+        {
+            addproduct(lastUndone.id, lastUndone.name, lastUndone.price, lastUndone.stock);
+            undoStack.push(lastUndone);
+        } 
+        else if (lastUndone.type == "REMOVE") 
+        {
+            removeproduct(lastUndone.id);
+            undoStack.push(lastUndone);
+        }
+    }
 };
-struct billnode
+
+struct billnode 
 {
     int productId;
     int quantity;
     billnode *next;
 
-    billnode(int id, int qty)
+    billnode(int id, int qty) 
     {
         productId = id;
         quantity = qty;
         next = nullptr;
     }
 };
-class billqueue
+
+class billqueue 
 {
 private:
     billnode *front;
     billnode *rear;
 
 public:
-    billqueue()
+    billqueue() 
     {
         front = rear = nullptr;
     }
-    bool isEmpty()
+
+    bool isEmpty() 
     {
         return front == nullptr;
     }
 
-    billnode *getfront()
+    billnode *getfront() 
     {
         return front;
     }
 
-    void enqueue(int productId, int quantity)
+    billnode *peek() 
+    {
+        if (isEmpty()) 
+        {
+            cout << "The bill queue is empty!" << endl;
+            return nullptr;
+        }
+        return front;
+    }
+
+    void enqueue(int productId, int quantity) 
     {
         billnode *newNode = new billnode(productId, quantity);
-        if (rear == nullptr)
+        if (rear == nullptr) 
         {
             front = rear = newNode;
-        }
-        else
+        } 
+        else 
         {
             rear->next = newNode;
             rear = newNode;
         }
     }
-    void dequeue()
+
+    void dequeue() 
     {
-        if (isEmpty())
+        if (isEmpty()) 
         {
             cout << "The bill queue is empty!" << endl;
             return;
         }
         billnode *temp = front;
         front = front->next;
-        if (front == nullptr)
+        if (front == nullptr) 
         {
             rear = nullptr;
         }
         delete temp;
     }
 
-    billnode *peek()
+    void display() 
     {
-        return front;
-    }
-
-    void display()
-    {
-        if (isEmpty())
+        if (isEmpty()) 
         {
             cout << "No items in the bill." << endl;
             return;
@@ -413,7 +453,7 @@ public:
         billnode *current = front;
         cout << left << setw(10) << "Product ID" << setw(10) << "Quantity" << endl;
         cout << string(20, '-') << endl;
-        while (current != nullptr)
+        while (current != nullptr) 
         {
             cout << left << setw(10) << current->productId << setw(10) << current->quantity << endl;
             current = current->next;
@@ -421,8 +461,10 @@ public:
         cout << string(20, '-') << endl;
     }
 };
-class BillingSystem
+
+class BillingSystem 
 {
+
 private:
     double total;
     double taxrate;
@@ -431,16 +473,17 @@ private:
     billqueue billQueue;
 
 public:
-    BillingSystem()
+    BillingSystem() 
     {
         total = 0;
         taxrate = 0.1;
         totalsales = 0;
     }
-    void saveBillToFile()
+
+    void saveBillToFile() 
     {
         ofstream file("bill.txt");
-        if (!file.is_open())
+        if (!file.is_open()) 
         {
             cout << "Error: Could not open the file to save the bill!" << endl;
             return;
@@ -453,10 +496,10 @@ public:
              << endl;
         file << string(30, '-') << endl;
         billnode *current = billQueue.getfront();
-        while (current != nullptr)
+        while (current != nullptr) 
         {
             product *prod = inventory.findproduct(current->productId);
-            if (prod != nullptr)
+            if (prod != nullptr) 
             {
                 file << left << setw(10) << current->productId
                      << setw(15) << current->quantity
@@ -473,19 +516,18 @@ public:
         cout << "Bill saved to 'bill.txt'." << endl;
     }
 
-    void addProductToBill(int productId, int quantity)
+    void addProductToBill(int productId, int quantity) 
     {
-
         product *prod = inventory.findproduct(productId);
         if (prod == nullptr)
         {
-            cout << "Product with ID " << productId << " not found in inventory :( !!!" << endl;
+            cout << "Product with ID " << productId << " not found in inventory!" << endl;
             return;
         }
 
-        if (prod->stock < quantity)
+        if (prod->stock < quantity) 
         {
-            cout << "Insufficient stock for product: " << prod->name << " :( " << endl;
+            cout << "Insufficient stock for product: " << prod->name << "!" << endl;
             return;
         }
 
@@ -497,10 +539,9 @@ public:
         inventory.savestock();
     }
 
-    void removeProductFromBill()
+    void removeProductFromBill() 
     {
-
-        if (billQueue.isEmpty())
+        if (billQueue.isEmpty()) 
         {
             cout << "The bill is empty!" << endl;
             return;
@@ -511,7 +552,7 @@ public:
         int quantity = billItem->quantity;
 
         product *prod = inventory.findproduct(productId);
-        if (prod != nullptr)
+        if (prod != nullptr) 
         {
             prod->stock += quantity;
             total -= prod->price * quantity;
@@ -522,7 +563,7 @@ public:
         inventory.savestock();
     }
 
-    void displayBill()
+    void displayBill() 
     {
         cout << "Current Bill:" << endl
              << string(20, '-') << endl;
@@ -531,92 +572,56 @@ public:
         cout << "Tax: $" << fixed << setprecision(2) << total * taxrate << endl;
         cout << "Total (with tax): $" << fixed << setprecision(2) << total * (1 + taxrate) << endl;
     }
-     void finalizeBill()
-     {
+
+    void finalizeBill() 
+    {
         displayBill();
-        cout<<"Enter your payment method"<<endl;
-        cout<<"1.Cash"<<endl;
-        cout<<"2.Credit Card"<<endl;
-        cout<<"3.Debit Card"<<endl;
-        cout<<"4.Mobile Wallet"<<endl;
         int choice;
-        cin>>choice;
-        if(choice==1)
+
+        do 
         {
-            cout<<"Enter the amount you are paying: ";
-            double amount;
-            cin>>amount;
-            if(amount<total)
+            cout << "Enter your payment method:" << endl;
+            cout << "1. Cash" << endl;
+            cout << "2. Credit Card" << endl;
+            cout << "3. Debit Card" << endl;
+            cout << "4. Mobile Wallet" << endl;
+            cout << "Choice: ";
+            cin >> choice;
+
+            if (choice == 1) 
             {
-                cout<<"Insufficient amount paid. Please pay the full amount."<<endl;
-                finalizeBill();
-            }
-            else
+                cout << "Enter the amount you are paying: ";
+                double amount;
+                cin >> amount;
+                if (amount < total) 
+                {
+                    cout << "Insufficient amount. Please pay the full amount!" << endl;
+                    continue;
+                }
+            } else if (choice >= 2 && choice <= 4) 
             {
-                cout<<"Payment successful. Thank you for shopping with us!"<<endl;
-                saveBillToFile();
-                checkout();
+                string input;
+                cout << "Enter required payment details: ";
+                cin >> input;
+            } else 
+            {
+                cout << "Invalid choice, try again!" << endl;
+                continue;
             }
-        }
-        else
-        {
-            cout<<"Payment successful. Thank you for shopping with us!"<<endl;
+
+            cout << "Payment successful. Thank you for shopping with us!" << endl;
             saveBillToFile();
             checkout();
-        }
-        if(choice==2)
-        {
-            cout<<"Enter your credit card number: ";
-            string cardnumber;
-            cin>>cardnumber;
-            cout<<"Enter the expiry date: ";
-            string expirydate;
-            cin>>expirydate;
-            cout<<"Enter the CVV: ";
-            string cvv;
-            cin>>cvv;
-            cout<<"Payment successful. Thank you for shopping with us!"<<endl;
-            saveBillToFile();
-            checkout();
-        }
-        if(choice==3)
-        {
-            cout<<"Enter your debit card number: ";
-            string cardnumber;
-            cin>>cardnumber;
-            cout<<"Enter the expiry date: ";
-            string expirydate;
-            cin>>expirydate;
-            cout<<"Enter the CVV: ";
-            string cvv;
-            cin>>cvv;
-            cout<<"Payment successful. Thank you for shopping with us!"<<endl;
-            saveBillToFile();
-            checkout();
-        }
-        if(choice==4)
-        {
-            cout<<"Enter your mobile number: ";
-            string mobilenumber;
-            cin>>mobilenumber;
-            cout<<"Enter your mobile wallet password: ";
-            string password;
-            cin>>password;
-            cout<<"Payment successful. Thank you for shopping with us!"<<endl;
-            saveBillToFile();
-            checkout();
-        }
-        if (choice>4)
-        {
-            cout<<"Invalid choice, try again!"<<endl;
-            finalizeBill();
-        }
-     }
-    void checkout()
+            break;
+
+        } while (true);
+    }
+
+    void checkout() 
     {
         totalsales += total * (1 + taxrate);
         total = 0;
-        while (!billQueue.isEmpty())
+        while (!billQueue.isEmpty()) 
         {
             billQueue.dequeue();
         }
@@ -672,17 +677,11 @@ public:
         return string(buffer);
     }
 };
-#include <iostream>
-#include <string>
-#include <iomanip>
-using namespace std;
-
 class AutoPilot
 {
 private:
-    BillingSystem &billingSystem;
-    Inventory &inventory;
-    menus menu;
+    BillingSystem  billingSystem;
+    Inventory inventory;
     const string adminPassword = "1234";
 
     void resetSystem()
@@ -702,62 +701,75 @@ public:
     AutoPilot(BillingSystem &billing, Inventory &inv) : billingSystem(billing), inventory(inv) {}
 
     void start()
+{
+    while (true)
     {
-        while (true)
+        system("cls");
+        cout << "============== AUTO PILOT MODE ==============" << endl;
+        string customerName;
+        cout << "Welcome to the store!" << endl;
+        cout << "Please enter your name: ";
+        cin.ignore();
+        getline(cin, customerName);
+
+        processCustomer(customerName);
+
+        cout << "Waiting for the next customer..." << endl;
+        cout << "To exit Auto Pilot Mode, press '1' or any other key to continue: ";
+        int exitChoice;
+        cin >> exitChoice;
+
+        if (exitChoice == 1 && handleAdminExit())
         {
-            system("cls");
-            cout << "============== AUTO PILOT MODE ==============" << endl;
-            string customerName;
-            cout << "Welcome to the store!" << endl;
-            cout << "Please enter your name: ";
-            cin.ignore(); // Clear buffer
-            getline(cin, customerName);
-
-            while (true)
-            {
-                int productId, quantity;
-                cout << endl
-                     << "Hello, " << customerName << "! What would you like to buy?" << endl;
-                inventory.displaystock();
-                cout << "Enter Product ID (or -1 to finish): ";
-                cin >> productId;
-
-                if (productId == -1)
-                    break;
-
-                cout << "Enter Quantity: ";
-                cin >> quantity;
-
-                billingSystem.addProductToBill(productId, quantity);
-            }
-
-            cout << endl
-                 << "Generating your bill..." << endl;
-            billingSystem.displayBill();
-            billingSystem.finalizeBill();
-            cout << "Thank you, " << customerName << "! Have a great day!" << endl;
-            resetSystem();
-            cout << "Waiting for the next customer..." << endl;
-            cout << "To exit Auto Pilot Mode, press '1' or continue by pressing any other key: ";
-            int exitChoice;
-            cin >> exitChoice;
-
-            if (exitChoice == 1)
-            {
-                if (verifyAdmin())
-                {
-                    cout << "Exiting Auto Pilot Mode. Returning to main menu." << endl;
-                    menu.mainmenu();
-                    break;
-                }
-                else
-                {
-                    cout << "Incorrect password. Continuing Auto Pilot Mode." << endl;
-                    start();
-                }
-            }
+            cout << "Exiting Auto Pilot Mode. Returning to main menu." << endl;
+            return;
+            break;
         }
     }
+}
+
+void processCustomer(const string &customerName)
+{
+    while (true)
+    {
+        int productId, quantity;
+        cout << endl
+             << "Hello, " << customerName << "! What would you like to buy?" << endl;
+        inventory.displaystock();
+        cout << "Enter Product ID (or -1 to finish): ";
+        cin >> productId;
+
+        if (productId == -1)
+            break;
+
+        cout << "Enter Quantity: ";
+        cin >> quantity;
+
+        billingSystem.addProductToBill(productId, quantity);
+    }
+
+    cout << endl
+         << "Generating your bill..." << endl;
+    billingSystem.displayBill();
+    billingSystem.finalizeBill();
+    cout << "Thank you, " << customerName << "! Have a great day!" << endl;
+    resetSystem();
+}
+
+bool handleAdminExit()
+{
+    while (true)
+    {
+        if (verifyAdmin())
+            return true;
+
+        cout << "Incorrect password. Press 1 to try again or 0 to return to Auto Pilot Mode: ";
+        int retryChoice;
+        cin >> retryChoice;
+        if (retryChoice == 0)
+            return false;
+    }
+}
 };
 
 class menus
@@ -767,175 +779,218 @@ private:
     BillingSystem billingSystem;
     int choice;
 
+    void displayMenuHeader(const string &header)
+    {
+        
+        cout << "============== " << header << " ==============" << endl;
+    }
+
+    int getUserChoice(const string &prompt)
+    {
+        int choice;
+        cout << prompt;
+        cin >> choice;
+        cin.ignore();
+        return choice;
+    }
+
 public:
     void about()
     {
-        cout << "A simple offline Point of Sale System featuring efficent inventory management"
-             << endl
-             << "and a simple billing system for paper-less management of your bussiness " << endl
-             << "Developed by: Muhammad Murtaza (F2023266701)" << endl
-             << "Mohsin Khan (F2023266704)" << endl
-             << "Muhammad Zain-Ul-Abideen (F2023266705)" << endl;
-        cout << "Press any key to return to main menu" << endl;
-        cin.get();
+        displayMenuHeader("ABOUT THE SYSTEM");
+        cout << "A simple offline Point of Sale System featuring efficient inventory management\n"
+             << "and a simple billing system for paper-less management of your business.\n"
+             << "Developed by:\n"
+             << "  - Muhammad Murtaza (F2023266701)\n"
+             << "  - Mohsin Khan (F2023266704)\n"
+             << "  - Muhammad Zain-Ul-Abideen (F2023266705)\n\n"
+             << "Press Enter to return to the main menu...";
+        cin.ignore();
         mainmenu();
     }
+
+    void mainmenu()
+    {
+        do
+        {
+            displayMenuHeader("POINT OF SALE SYSTEM");
+            cout << "1. Enter Point of Sale System\n"
+                 << "2. About the System\n"
+                 << "3. Auto Pilot Mode\n"
+                 << "4. Exit\n";
+            choice = getUserChoice("Enter your choice: ");
+
+            switch (choice)
+            {
+            case 1:
+                nextmenu();
+                break;
+            case 2:
+                about();
+                break;
+            case 3:
+            {
+                AutoPilot autopilot(billingSystem, inventory);
+                autopilot.start();
+                break;
+            }
+            case 4:
+                cout << "Exiting... Thank you for using the system!" << endl;
+                break;
+            default:
+                cout << "Invalid choice, please try again." << endl;
+                break;
+            }
+        } while (choice != 4);
+    }
+
     void nextmenu()
     {
-        cout << endl
-             << "============== POINT OF SALE SYSTEM ==============" << endl;
-        cout << "1) Product Management " << endl;
-        cout << "2) Generate Bill" << endl;
-        cout << "3) Back to Main Menu" << endl;
-        cout << "Enter your choice: ";
-        cin >> choice;
-        cin.ignore();
-        switch (choice)
+        while (true)
         {
-        case 1:
-            productmenu();
-            break;
-        case 2:
-            billmenu();
-            break;
-        case 3:
-            cout << "Returning to main menu..." << endl;
-            mainmenu();
-            break;
-        default:
-            cout << "Invalid choice, try again!" << endl;
-            break;
+            displayMenuHeader("POINT OF SALE SYSTEM");
+            cout << "1. Product Management\n"
+                 << "2. Generate Bill\n"
+                 << "3. Back to Main Menu\n";
+            choice = getUserChoice("Enter your choice: ");
+
+            switch (choice)
+            {
+            case 1:
+                productmenu();
+                break;
+            case 2:
+                billmenu();
+                break;
+            case 3:
+                return; 
+            default:
+                cout << "Invalid choice, please try again." << endl;
+                break;
+            }
         }
     }
+
     void billmenu()
     {
-        cout << "============== BILLING SYSTEM ==============" << endl;
-        int choice;
-        cout << "1. Add Product to Bill" << endl;
-        cout << "2. Remove Product from Bill" << endl;
-        cout << "3. Display Bill" << endl;
-        cout << "4. Checkout" << endl;
-        cout<<"5.back"<<endl;
-        cout << "Enter your choice: ";
-        cin >> choice;
-        cin.ignore();
-        switch (choice)
+        while (true)
         {
-        case 1:
-        {
-            cout << "ADD PRODUCT TO BILL" << endl;
-            int id, quantity;
-            cout << "Enter product ID: ";
-            cin >> id;
-            cout << "Enter quantity: ";
-            cin >> quantity;
-            billingSystem.addProductToBill(id, quantity);
-            cout << "Enter 1 to add more products or press any key to return to billing menu: ";
-            cin >> choice;
-            if (choice == 1)
-            {
-                cout << "Enter product ID: ";
-                cin >> id;
-                cout << "Enter quantity: ";
-                cin >> quantity;
-                billingSystem.addProductToBill(id, quantity);
-            }
-            else
-            {
-                billmenu();
-            }
-        break;
-        case 2:
-            cout << "REMOVE PRODUCT FROM BILL" << endl;
-            billingSystem.removeProductFromBill();
-            cout << "Enter 1 to remove more products or press any key to return to billing menu: ";
-            cin >> choice;
-            if (choice == 1)
-            {
-                billingSystem.removeProductFromBill();
-            }
-            else
-            {
-                billmenu();
-            }
-            break;
-        case 3:
-            billingSystem.displayBill();
-            break;
-        case 4:
-            billingSystem.checkout();
-            break;
-        case 5:
-            cout << "Returning to main menu..." << endl;
-            nextmenu();
-            break;
-        default:
-            cout << "Invalid choice, try again!" << endl;
-            break;
-        }
-    }
-}
- void productmenu()
-{
+            displayMenuHeader("BILLING SYSTEM");
+            cout << "1. Add Product to Bill\n"
+                 << "2. Remove Product from Bill\n"
+                 << "3. Display Bill\n"
+                 << "4. Checkout\n"
+                 << "5. Back\n";
+            choice = getUserChoice("Enter your choice: ");
 
-    int choice;
-    cout << "============== PRODUCT MANAGEMENT ==============" << endl;
-    cout << "1) Add Product" << endl;
-    cout << "2) Remove Product" << endl;
-    cout << "3) Update Product" << endl;
-    cout << "4) Display Stock" << endl;
-    cout << "5) Apply Discount" << endl;
-    cout << "6) Back" << endl;
-    cout << "Enter your choice: ";
-    cin >> choice;
-    cin.ignore();
-    switch (choice)
-    {
-    case 1:
-    {
-        system("cls");
-        addproduct();
-        cout << "Product added successfully!" << endl;
-        cout << "Enter 1 to add more products or press any key to return to product management menu: ";
-        cin >> choice;
-        if (choice == 1)
-        {
-            addproduct();
-        }
-        else
-        {
-            productmenu();
+            switch (choice)
+            {
+            case 1:
+                addProductToBill();
+                break;
+            case 2:
+                billingSystem.removeProductFromBill();
+                break;
+            case 3:
+                billingSystem.displayBill();
+                break;
+            case 4:
+                billingSystem.checkout();
+                return; 
+            case 5:
+                return; 
+            default:
+                cout << "Invalid choice, please try again." << endl;
+                break;
+            }
         }
     }
-    break;
-    case 2:
+
+    void productmenu()
     {
-        cout << "============== Remove Product ====================" << endl;
-        int id;
-        cout << "Enter product ID to remove : ";
-        cin >> id;
-        inventory.removeproduct(id);
-        cout << "Product removed successfully!" << endl;
-        cout << "Enter 1 to remove more products or press any key to return to product management menu: ";
-        cin >> choice;
-        if (choice == 1)
+        while (true)
         {
-            cout << "Enter product ID to remove : ";
-            cin >> id;
-            inventory.removeproduct(id);
-        }
-        else
-        {
-            productmenu();
+            displayMenuHeader("PRODUCT MANAGEMENT");
+            cout << "1. Add Product\n"
+                 << "2. Remove Product\n"
+                 << "3. Update Product\n"
+                 << "4. Display Stock\n"
+                 << "5. Apply Discount\n"
+                 <<"6. Undo product addition / removal\n"
+                 <<"7. Redo product addition / removal\n"
+                 << "8. Back\n";
+            choice = getUserChoice("Enter your choice: ");
+
+            switch (choice)
+            {
+            case 1:
+                addproduct();
+                break;
+            case 2:
+                removeProduct();
+                break;
+            case 3:
+                updateProduct();
+                break;
+            case 4:
+                inventory.displaystock();
+                break;
+            case 5:
+                applyDiscount();
+                break;
+            case 6:
+                inventory.undo();
+                break;
+            case 7:
+                inventory.redo();
+                break;
+            case 8:
+                return; 
+            default:
+                cout << "Invalid choice, please try again." << endl;
+                break;
+            }
         }
     }
-    break;
-    case 3:
+
+    void addproduct()
     {
-        cout << "============== Update Product ====================" << endl;
+        displayMenuHeader("ADD PRODUCT");
         int id, stock;
         string name;
         double price;
+
+        cout << "Enter product ID: ";
+        cin >> id;
+        cin.ignore();
+        cout << "Enter product name: ";
+        getline(cin, name);
+        cout << "Enter product price: ";
+        cin >> price;
+        cout << "Enter product quantity: ";
+        cin >> stock;
+
+        inventory.addproduct(id, name, price, stock);
+        cout << "Product added successfully!\n";
+    }
+
+    void removeProduct()
+    {
+        displayMenuHeader("REMOVE PRODUCT");
+        int id;
+        cout << "Enter product ID to remove: ";
+        cin >> id;
+        inventory.removeproduct(id);
+        cout << "Product removed successfully!\n";
+    }
+
+    void updateProduct()
+    {
+        displayMenuHeader("UPDATE PRODUCT");
+        int id, stock;
+        string name;
+        double price;
+
         cout << "Enter product ID: ";
         cin >> id;
         cin.ignore();
@@ -945,124 +1000,39 @@ public:
         cin >> price;
         cout << "Enter new product quantity (negative to keep the same): ";
         cin >> stock;
+
         inventory.updateproduct(id, name, price, stock);
-        cout << "Product updated successfully!" << endl;
-        cout << "Enter 1 to update more products or press any key to return to product management menu: ";
-        cin >> choice;
-        if (choice == 1)
-        {
-            cout << "Enter product ID to update : ";
-            cin >> id;
-            cin.ignore();
-            cout << "Enter new product name (leave empty to keep the same): ";
-            getline(cin, name);
-            cout << "Enter new product price (negative to keep the same): ";
-            cin >> price;
-            cout << "Enter new product quantity (negative to keep the same): ";
-            cin >> stock;
-            inventory.updateproduct(id, name, price, stock);
-        }
-        else
-        {
-            productmenu();
-        }
+        cout << "Product updated successfully!\n";
     }
-    break;
-    case 4:
-        inventory.displaystock();
-        break;
-    case 5:
+
+    void applyDiscount()
     {
-        cout << "============== Apply Discount ====================" << endl;
+        displayMenuHeader("APPLY DISCOUNT");
         int id;
         double discount;
+
         cout << "Enter product ID: ";
         cin >> id;
         cout << "Enter discount percentage: ";
         cin >> discount;
+
         inventory.applydiscounttoproduct(id, discount);
-        cout << "Discount applied successfully!" << endl;
-        cout << "Enter 1 to apply more discounts or press any key to return to product management menu: ";
-        cin >> choice;
-        if (choice == 1)
-        {
-            cout << "Enter product ID: ";
-            cin >> id;
-            cout << "Enter discount percentage: ";
-            cin >> discount;
-            inventory.applydiscounttoproduct(id, discount);
-        }
-        else
-        {
-            productmenu();
-        }
+        cout << "Discount applied successfully!\n";
     }
-    break;
-    case 6:
-        cout << "Returning to main menu..." << endl;
-        nextmenu();
-        break;
-    default:
-        cout << "Invalid choice, try again!" << endl;
-        break;
-    }
-}
-void addproduct()
-{
-    system("cls");
-    cout << "============== Add Product ====================" << endl;
-    cout << "Enter product details: " << endl;
-    int id, stock;
-    string name;
-    double price;
-    cout << "Enter product ID: ";
-    cin >> id;
-    cin.ignore();
-    cout << "Enter product name: ";
-    getline(cin, name);
-    cout << "Enter product price: ";
-    cin >> price;
-    cout << "Enter product quantity: ";
-    cin >> stock;
-    inventory.addproduct(id, name, price, stock);
-}
-void mainmenu()
-{
-    do
+
+    void addProductToBill()
     {
-        cout << endl
-             << "============== POINT OF SALE SYSTEM ==============" << endl;
-        cout << "1. Enter Point of Sale System" << endl;
-        cout << "2. About the System" << endl;
-        cout<<"3.Auto Pilot Mode"<<endl;
-        cout << "4. Exit" << endl;
-        cout << "Enter your choice: ";
-        cin >> choice;
-        cin.ignore();
-        switch (choice)
-        {
-        case 1:
-            nextmenu();
-            break;
-        case 2:
-            about();
-            break;
-        case 3:
-        {
-            AutoPilot autopilot(billingSystem, inventory);
-            autopilot.start();
-            break;
-        }
-        case 4:
-            cout << "BYE BYE !!!........." << endl;
-            break;
-        default:
-            cout << "Invalid choice, try again!" << endl;
-            break;
-        }
-    } while (choice != 4);
-}
+        int id, quantity;
+        cout << "Enter product ID: ";
+        cin >> id;
+        cout << "Enter quantity: ";
+        cin >> quantity;
+
+        billingSystem.addProductToBill(id, quantity);
+        cout << "Product added to bill successfully!\n";
+    }
 };
+
 int main()
 {
     menus menu;
