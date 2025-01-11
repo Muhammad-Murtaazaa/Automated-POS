@@ -256,7 +256,6 @@ public:
         {
             if (current->id == id) 
             {
-                // Record the removed product for undo functionality
                 undoStack.push(Action("REMOVE", id, current->name, current->price, current->stock));
                 while (!redoStack.isEmpty()) 
                 {
@@ -313,7 +312,8 @@ public:
             current->price -= discountAmount;
             cout << "Applied " << discountPercent << "% discount. New price: " << current->price << endl;
             savestock();
-        } else 
+        } 
+        else 
         {
             cout << "Product with ID " << id << " not found." << endl;
         }
@@ -677,16 +677,19 @@ public:
         return string(buffer);
     }
 };
+
 class AutoPilot
 {
 private:
-    BillingSystem  billingSystem;
-    Inventory inventory;
+    BillingSystem &billingSystem;
+    Inventory &inventory;
     const string adminPassword = "1234";
+    feedbacksystem feedbackSystem;
 
     void resetSystem()
     {
         billingSystem.checkout();
+        inventory.savestock(); // Ensure that the inventory is saved after the transaction
     }
 
     bool verifyAdmin()
@@ -697,81 +700,99 @@ private:
         return inputPassword == adminPassword;
     }
 
+    void processCustomer(const string &customerName)
+    {
+        while (true)
+        {
+            int productId, quantity;
+            cout << endl
+                 << "Hello, " << customerName << "! What would you like to buy?" << endl;
+            inventory.displaystock();
+
+            cout << "Enter Product ID (or -1 to finish): ";
+            cin >> productId;
+
+            if (productId == -1)
+                break;
+
+            cout << "Enter Quantity: ";
+            cin >> quantity;
+
+            product *prod = inventory.findproduct(productId);
+            if (prod && prod->stock >= quantity)
+            {
+                billingSystem.addProductToBill(productId, quantity);
+                prod->stock -= quantity; // Reduce the stock
+                cout << "Product added to your bill. Stock updated!" << endl;
+            }
+            else
+            {
+                cout << "Insufficient stock or product not found!" << endl;
+            }
+        }
+
+        cout << endl
+             << "Generating your bill..." << endl;
+        billingSystem.displayBill();
+        billingSystem.finalizeBill();
+        cout << "Thank you, " << customerName << "! Have a great day!" << endl;
+
+        resetSystem();
+    }
+
+    void collectCustomerFeedback()
+    {
+        feedbackSystem.collectfeedback(); // Call the feedback system to collect feedback
+    }
+
 public:
     AutoPilot(BillingSystem &billing, Inventory &inv) : billingSystem(billing), inventory(inv) {}
 
     void start()
-{
-    while (true)
     {
-        system("cls");
-        cout << "============== AUTO PILOT MODE ==============" << endl;
-        string customerName;
-        cout << "Welcome to the store!" << endl;
-        cout << "Please enter your name: ";
-        cin.ignore();
-        getline(cin, customerName);
-
-        processCustomer(customerName);
-
-        cout << "Waiting for the next customer..." << endl;
-        cout << "To exit Auto Pilot Mode, press '1' or any other key to continue: ";
-        int exitChoice;
-        cin >> exitChoice;
-
-        if (exitChoice == 1 && handleAdminExit())
+        while (true)
         {
-            cout << "Exiting Auto Pilot Mode. Returning to main menu." << endl;
-            return;
-            break;
+            system("cls");
+            cout << "============== AUTO PILOT MODE ==============" << endl;
+            string customerName;
+            cout << "Welcome to the store!" << endl;
+            cout << "Please enter your name: ";
+            cin.ignore();
+            getline(cin, customerName);
+
+            processCustomer(customerName);
+
+            // Ask for feedback after each customer transaction
+            collectCustomerFeedback();
+
+            cout << "Waiting for the next customer..." << endl;
+            cout << "To exit Auto Pilot Mode, press '1' or any other key to continue: ";
+            int exitChoice;
+            cin >> exitChoice;
+
+            if (exitChoice == 1 && handleAdminExit())
+            {
+                cout << "Exiting Auto Pilot Mode. Returning to main menu." << endl;
+                break;
+            }
         }
     }
-}
 
-void processCustomer(const string &customerName)
-{
-    while (true)
+    bool handleAdminExit()
     {
-        int productId, quantity;
-        cout << endl
-             << "Hello, " << customerName << "! What would you like to buy?" << endl;
-        inventory.displaystock();
-        cout << "Enter Product ID (or -1 to finish): ";
-        cin >> productId;
+        while (true)
+        {
+            if (verifyAdmin())
+                return true;
 
-        if (productId == -1)
-            break;
-
-        cout << "Enter Quantity: ";
-        cin >> quantity;
-
-        billingSystem.addProductToBill(productId, quantity);
+            cout << "Incorrect password. Press 1 to try again or 0 to return to Auto Pilot Mode: ";
+            int retryChoice;
+            cin >> retryChoice;
+            if (retryChoice == 0)
+                return false;
+        }
     }
-
-    cout << endl
-         << "Generating your bill..." << endl;
-    billingSystem.displayBill();
-    billingSystem.finalizeBill();
-    cout << "Thank you, " << customerName << "! Have a great day!" << endl;
-    resetSystem();
-}
-
-bool handleAdminExit()
-{
-    while (true)
-    {
-        if (verifyAdmin())
-            return true;
-
-        cout << "Incorrect password. Press 1 to try again or 0 to return to Auto Pilot Mode: ";
-        int retryChoice;
-        cin >> retryChoice;
-        if (retryChoice == 0)
-            return false;
-    }
-}
 };
-
 class menus
 {
 private:
