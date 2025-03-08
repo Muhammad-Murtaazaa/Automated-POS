@@ -796,7 +796,29 @@ public:
         }
     }
 };
-class menus
+
+class styles
+{
+    protected:
+    void setConsoleColor(int color)
+    {
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+    }
+    void setTextCenter(const string& text)
+    {
+        cout << setw(40 + text.length() / 2) << text << endl;
+    }
+    void typewriterEffect(const string& text, int delay = 50) 
+    {
+        for (char c : text) 
+        {
+            cout << c << flush;
+            this_thread::sleep_for(chrono::milliseconds(delay));
+        }
+        cout << endl;
+    }
+};
+class menus: public styles
 {
 private:
     Inventory inventory;
@@ -805,7 +827,7 @@ private:
 
     void displayMenuHeader(const string& header)
     {
-
+       
         cout << "============== " << header << " ==============" << endl;
     }
 
