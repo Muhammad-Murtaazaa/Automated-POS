@@ -2,6 +2,13 @@
 #include <string>
 #include <iomanip>
 #include <fstream>
+#include <cstdlib>
+#include <ctime>
+#include <windows.h>
+#include <conio.h>
+#include <vector>
+#include <chrono>
+#include <thread>
 using namespace std;
 
 template <class T>
