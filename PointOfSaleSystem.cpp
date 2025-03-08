@@ -9,6 +9,7 @@
 #include <vector>
 #include <chrono>
 #include <thread>
+
 using namespace std;
 
 template <class T>
@@ -845,13 +846,11 @@ public:
     void about()
     {
         displayMenuHeader("ABOUT THE SYSTEM");
-        cout << "A simple offline Point of Sale System featuring efficient inventory management\n"
-            << "and a simple billing system for paper-less management of your business.\n"
-            << "Developed by:\n"
-            << "  - Muhammad Murtaza (F2023266701)\n"
-            << "  - Mohsin Khan (F2023266704)\n"
-            << "  - Muhammad Zain-Ul-Abideen (F2023266705)\n\n"
-            << "Press Enter to return to the main menu...";
+        typewriterEffect("A simple offline Point of Sale System featuring efficient inventory management");
+        typewriterEffect("and a simple billing system for paper-less management of your business.");
+        typewriterEffect("Developed by:");
+        typewriterEffect("  - Muhammad Murtaza");
+        typewriterEffect("Press Enter to return to the main menu...");
         cin.ignore();
         mainmenu();
     }
