@@ -1088,7 +1088,6 @@ public:
         cin >> id;
         cout << "Enter discount percentage: ";
         cin >> discount;
-
         inventory.applydiscounttoproduct(id, discount);
         cout << "Discount applied successfully!\n";
     }
@@ -1100,7 +1099,6 @@ public:
         cin >> id;
         cout << "Enter quantity: ";
         cin >> quantity;
-
         billingSystem.addProductToBill(id, quantity);
         cout << "Product added to bill successfully!\n";
     }
