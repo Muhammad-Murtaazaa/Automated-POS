@@ -1032,7 +1032,6 @@ public:
         int id, stock;
         string name;
         double price;
-
         cout << "Enter product ID: ";
         cin >> id;
         cin.ignore();
@@ -1042,7 +1041,6 @@ public:
         cin >> price;
         cout << "Enter product quantity: ";
         cin >> stock;
-
         inventory.addproduct(id, name, price, stock);
         cout << "Product added successfully!\n";
     }
@@ -1063,7 +1061,6 @@ public:
         int id, stock;
         string name;
         double price;
-
         cout << "Enter product ID: ";
         cin >> id;
         cin.ignore();
