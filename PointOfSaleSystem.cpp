@@ -94,7 +94,7 @@ struct Action
     string name;
     double price;
     int stock;
-	Action() {} 
+    Action() {}
     Action(string type, int id, string name = "", double price = 0.0, int stock = 0)
     {
         this->type = type;
@@ -229,7 +229,7 @@ public:
             }
             current = current->next;
         }
-		return NULL;
+        return NULL;
     }
 
     void displaystock() const
@@ -485,7 +485,7 @@ private:
     billqueue billQueue;
 
 public:
-	BillingSystem(Inventory& inv) : inventory(inv)
+    BillingSystem(Inventory& inv) : inventory(inv)
     {
         total = 0;
         taxrate = 0.1;
@@ -530,7 +530,7 @@ public:
 
     void addProductToBill(int productId, int quantity)
     {
-		int p = productId;
+        int p = productId;
         product* prod = inventory.findproduct(p);
         if (prod == NULL)
         {
@@ -543,7 +543,7 @@ public:
             cout << "Insufficient stock for product: " << prod->name << "!" << endl;
             return;
         }
-        
+
         billQueue.enqueue(productId, quantity);
         total += prod->price * quantity;
         prod->stock -= quantity;
@@ -774,10 +774,10 @@ public:
                 cout << "Exiting Auto Pilot Mode. Returning to main menu." << endl;
                 break;
             }
-			else if (exitChoice == 2)
+            else if (exitChoice == 2)
             {
-				system("cls");
-				continue;
+                system("cls");
+                continue;
             }
         }
     }
@@ -800,26 +800,39 @@ public:
 
 class styles
 {
-    protected:
+protected:
+
     void setConsoleColor(int color)
     {
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
     }
+
     void setTextCenter(const string& text)
     {
         cout << setw(40 + text.length() / 2) << text << endl;
     }
-    void typewriterEffect(const string& text, int delay = 50) 
+
+    void typewriterEffect(const string& text, int delay = 50)
     {
-        for (char c : text) 
+        for (char c : text)
         {
             cout << c << flush;
             this_thread::sleep_for(chrono::milliseconds(delay));
         }
         cout << endl;
     }
+
+    void hideCursor()
+    {
+        HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+        CONSOLE_CURSOR_INFO cursorInfo;
+        GetConsoleCursorInfo(consoleHandle, &cursorInfo);
+        cursorInfo.bVisible = false;
+        SetConsoleCursorInfo(consoleHandle, &cursorInfo);
+    }
 };
-class menus: public styles
+
+class menus : public styles
 {
 private:
     Inventory inventory;
@@ -828,7 +841,7 @@ private:
 
     void displayMenuHeader(const string& header)
     {
-       
+
         cout << "============== " << header << " ==============" << endl;
     }
 
@@ -842,7 +855,7 @@ private:
     }
 
 public:
-	menus() : billingSystem(inventory) {}
+    menus() : billingSystem(inventory) {}
     void about()
     {
         displayMenuHeader("ABOUT THE SYSTEM");
@@ -857,41 +870,94 @@ public:
 
     void mainmenu()
     {
-        do
-        {
-            displayMenuHeader("POINT OF SALE SYSTEM");
-            cout << "1. Enter Point of Sale System\n"
-                << "2. About the System\n"
-                << "3. Auto Pilot Mode\n"
-                << "4. Exit\n";
-            choice = getUserChoice("Enter your choice: ");
+        const int menusize = 4;
+        string menuitems[menusize] = { "Enter Point of Sale System", "About the System","Auto Pilot Mode", "Exit" };
+        int selected = 0;
+        int key;
+        hideCursor();
 
-            switch (choice)
-            {
-            case 1:
-				system("cls");  
-                nextmenu();
-                break;
-            case 2:
-				system("cls");  
-                about();
-                break;
-            case 3:
-            {
-				system("cls");  
-                AutoPilot autopilot(billingSystem, inventory);
-                autopilot.start();
-                break;
+        while (true)
+        {
+            system("cls");
+            displayMenuHeader("POINT OF SALE SYSTEM");
+            for (int i = 0; i < menusize; i++) {
+                if (i == selected) {
+                    setConsoleColor(12); // Highlighted option (Red)
+                }
+                else {
+                    setConsoleColor(15); // Normal (White)
+                }
+                cout << (i + 1) << ". " << menuitems[i] << endl;
             }
-            case 4:
-				system("cls");  
-                cout << "Exiting... Thank you for using the system!" << endl;
-                break;
-            default:
-                cout << "Invalid choice, please try again." << endl;
-                break;
+
+            key = _getch();
+
+            if (key == 224) {
+                key = _getch();
+                if (key == 80 && selected < menusize - 1) {
+                    selected++;  // Move down
+                }
+                else if (key == 72 && selected > 0) {
+                    selected--;  // Move up
+                }
             }
-        } while (choice != 4);
+            else if (key == 13) {
+                system("cls");
+                setConsoleColor(15);  // Reset color
+
+                if (selected == 0) {
+                    nextmenu();
+                }
+                else if (selected == 1) {
+                    about();
+                }
+                else if (selected == 2) {
+                    AutoPilot autopilot(billingSystem, inventory);
+                    autopilot.start();
+                    break;
+                }
+                else if (selected == 3) {
+                    cout << "Exiting... Thank you for using the system!" << endl;
+                    break;
+                }
+            }
+        }
+
+        // do
+        // {
+        //     displayMenuHeader("POINT OF SALE SYSTEM");
+        //     cout << "1. Enter Point of Sale System\n"
+        //         << "2. About the System\n"
+        //         << "3. Auto Pilot Mode\n"
+        //         << "4. Exit\n";
+        //     choice = getUserChoice("Enter your choice: ");
+
+        //     switch (choice)
+        //     {
+        //     case 1:
+        // 		system("cls");  
+        //         nextmenu();
+        //         break;
+        //     case 2:
+        // 		system("cls");  
+        //         about();
+        //         break;
+        //     case 3:
+        //     {
+        // 		system("cls");  
+        //         AutoPilot autopilot(billingSystem, inventory);
+        //         autopilot.start();
+        //         break;
+        //     }
+        //     case 4:
+        // 		system("cls");  
+        //         cout << "Exiting... Thank you for using the system!" << endl;
+        //         break;
+        //     default:
+        //         cout << "Invalid choice, please try again." << endl;
+        //         break;
+        //     }
+        // } while (choice != 4);
     }
 
     void nextmenu()
@@ -947,7 +1013,7 @@ public:
                 billingSystem.removeProductFromBill();
                 break;
             case 3:
-				system("cls");
+                system("cls");
                 billingSystem.displayBill();
                 break;
             case 4:
@@ -956,7 +1022,7 @@ public:
                 billingSystem.checkout();
                 return;
             case 5:
-				system("cls");
+                system("cls");
                 return;
             default:
                 cout << "Invalid choice, please try again." << endl;
@@ -983,7 +1049,7 @@ public:
             switch (choice)
             {
             case 1:
-				system("cls");
+                system("cls");
                 inventory.displaystock();
                 addproduct();
                 inventory.displaystock();
@@ -1017,7 +1083,7 @@ public:
                 inventory.redo();
                 break;
             case 8:
-				system("cls");  
+                system("cls");
                 return;
             default:
                 cout << "Invalid choice, please try again." << endl;
