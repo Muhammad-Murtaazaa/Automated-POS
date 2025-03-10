@@ -922,42 +922,6 @@ public:
                 }
             }
         }
-
-        // do
-        // {
-        //     displayMenuHeader("POINT OF SALE SYSTEM");
-        //     cout << "1. Enter Point of Sale System\n"
-        //         << "2. About the System\n"
-        //         << "3. Auto Pilot Mode\n"
-        //         << "4. Exit\n";
-        //     choice = getUserChoice("Enter your choice: ");
-
-        //     switch (choice)
-        //     {
-        //     case 1:
-        // 		system("cls");  
-        //         nextmenu();
-        //         break;
-        //     case 2:
-        // 		system("cls");  
-        //         about();
-        //         break;
-        //     case 3:
-        //     {
-        // 		system("cls");  
-        //         AutoPilot autopilot(billingSystem, inventory);
-        //         autopilot.start();
-        //         break;
-        //     }
-        //     case 4:
-        // 		system("cls");  
-        //         cout << "Exiting... Thank you for using the system!" << endl;
-        //         break;
-        //     default:
-        //         cout << "Invalid choice, please try again." << endl;
-        //         break;
-        //     }
-        // } while (choice != 4);
     }
 
     void nextmenu()
