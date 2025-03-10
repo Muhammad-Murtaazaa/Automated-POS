@@ -839,10 +839,44 @@ private:
     BillingSystem billingSystem;
     int choice;
 
-    void displayMenuHeader(const string& header)
+    void displayMenuHeader(const string& text)
     {
 
-        cout << "============== " << header << " ==============" << endl;
+        int width = text.length() + 4; // Box width (text length + padding)
+        int height = 5;                // Box height
+    
+        // Print top border
+        for (int i = 0; i < width; i++) {
+            cout << "*";
+        }
+        cout << endl;
+    
+        // Print empty lines with side borders
+        for (int i = 0; i < (height - 3) / 2; i++) {
+            cout << "*";
+            for (int j = 0; j < width - 2; j++) {
+                cout << " ";
+            }
+            cout << "*" << endl;
+        }
+    
+        // Print text in the middle
+        cout << "* " << text << " *" << endl;
+    
+        // Print empty lines again
+        for (int i = 0; i < (height - 3) / 2; i++) {
+            cout << "*";
+            for (int j = 0; j < width - 2; j++) {
+                cout << " ";
+            }
+            cout << "*" << endl;
+        }
+    
+        // Print bottom border
+        for (int i = 0; i < width; i++) {
+            cout << "*";
+        }
+        cout << endl;
     }
 
     int getUserChoice(const string& prompt)
@@ -928,7 +962,8 @@ public:
                 }
                 else if (selected == 3) 
                 {
-                    cout << "Exiting... Thank you for using the system!" << endl;
+                    cout << "Exiting........"<<endl;
+                    cout<<"Thank you for using the system!" << endl;
                     break;
                 }
             }
