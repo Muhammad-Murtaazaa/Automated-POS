@@ -880,11 +880,14 @@ public:
         {
             system("cls");
             displayMenuHeader("POINT OF SALE SYSTEM");
-            for (int i = 0; i < menusize; i++) {
-                if (i == selected) {
-                    setConsoleColor(12); // Highlighted option (Red)
+            for (int i = 0; i < menusize; i++) 
+            {
+                if (i == selected) 
+                {
+                    setConsoleColor(10); // Highlighted option (green)
                 }
-                else {
+                else 
+                {
                     setConsoleColor(15); // Normal (White)
                 }
                 cout << (i + 1) << ". " << menuitems[i] << endl;
@@ -892,31 +895,39 @@ public:
 
             key = _getch();
 
-            if (key == 224) {
+            if (key == 224) 
+            {
                 key = _getch();
-                if (key == 80 && selected < menusize - 1) {
+                if (key == 80 && selected < menusize - 1) // Down arrow
+                {
                     selected++;  // Move down
                 }
-                else if (key == 72 && selected > 0) {
+                else if (key == 72 && selected > 0) // Up arrow 
+                {
                     selected--;  // Move up
                 }
             }
-            else if (key == 13) {
+            else if (key == 13) // Enter key 
+            {
                 system("cls");
                 setConsoleColor(15);  // Reset color
 
-                if (selected == 0) {
+                if (selected == 0)  
+                {
                     nextmenu();
                 }
-                else if (selected == 1) {
+                else if (selected == 1) 
+                {
                     about();
                 }
-                else if (selected == 2) {
+                else if (selected == 2) 
+                {
                     AutoPilot autopilot(billingSystem, inventory);
                     autopilot.start();
                     break;
                 }
-                else if (selected == 3) {
+                else if (selected == 3) 
+                {
                     cout << "Exiting... Thank you for using the system!" << endl;
                     break;
                 }
