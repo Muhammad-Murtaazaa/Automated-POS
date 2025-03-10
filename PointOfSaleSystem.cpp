@@ -841,42 +841,40 @@ private:
 
     void displayMenuHeader(const string& text)
     {
+        int paddingX = 6;  // Horizontal padding (left & right)
+        int paddingY = 2;  // Vertical padding (top & bottom)
+        int width = text.length() + paddingX * 2; // Total box width
 
-        int width = text.length() + 4; // Box width (text length + padding)
-        int height = 5;                // Box height
-    
-        // Print top border
-        for (int i = 0; i < width; i++) {
+// Print top border
+        cout << "+";
+        for (int i = 0; i < width; i++) cout << "=";
+        cout << "+" << endl;
+
+// Print empty space above the text
+        for (int i = 0; i < paddingY; i++) {
+        cout << "*";
+        for (int j = 0; j < width; j++) cout << " ";
+        cout << "*" << endl;
+}
+
+// Print the centered text
+        cout << "*";
+        cout << string(paddingX - 1, ' '); // Left padding
+        cout << text;
+        cout << string(width - text.length() - (paddingX - 1), ' '); // Corrected Right Padding
+        cout << "*" << endl;
+
+// Print empty space below the text
+        for (int i = 0; i < paddingY; i++) {
             cout << "*";
-        }
-        cout << endl;
-    
-        // Print empty lines with side borders
-        for (int i = 0; i < (height - 3) / 2; i++) {
-            cout << "*";
-            for (int j = 0; j < width - 2; j++) {
-                cout << " ";
-            }
+            for (int j = 0; j < width; j++) cout << " ";
             cout << "*" << endl;
-        }
-    
-        // Print text in the middle
-        cout << "* " << text << " *" << endl;
-    
-        // Print empty lines again
-        for (int i = 0; i < (height - 3) / 2; i++) {
-            cout << "*";
-            for (int j = 0; j < width - 2; j++) {
-                cout << " ";
-            }
-            cout << "*" << endl;
-        }
-    
-        // Print bottom border
-        for (int i = 0; i < width; i++) {
-            cout << "*";
-        }
-        cout << endl;
+}
+
+// Print bottom border
+        cout << "+";
+        for (int i = 0; i < width; i++) cout << "=";
+        cout << "+" << endl;
     }
 
     int getUserChoice(const string& prompt)
