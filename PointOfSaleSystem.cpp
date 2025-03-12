@@ -968,34 +968,80 @@ public:
         }
     }
 
-    void nextmenu()
+    void nextmenu() 
     {
-        while (true)
-        {
+        const int menusize = 3;
+        string menuitems[menusize] = { "Product Management", "Generate Bill", "Back to Main Menu" };
+        int selected = 0;
+        int key;
+    
+        hideCursor();
+    
+        while (true) {
+            system("cls");
             displayMenuHeader("POINT OF SALE SYSTEM");
-            cout << "1. Product Management\n"
-                << "2. Generate Bill\n"
-                << "3. Back to Main Menu\n";
-            choice = getUserChoice("Enter your choice: ");
-
-            switch (choice)
-            {
-            case 1:
+    
+            for (int i = 0; i < menusize; i++) {
+                if (i == selected) {
+                    setConsoleColor(12);  // Highlighted option (Red)
+                    cout << " > " << menuitems[i] << endl;
+                    setConsoleColor(15);  // Reset color (White)
+                } else {
+                    cout << "   " << menuitems[i] << endl;
+                }
+            }
+    
+            key = _getch(); // Read key input
+            if (key == 224) { // Arrow keys return 224 first
+                key = _getch();
+                if (key == 80 && selected < menusize - 1) { // Down Arrow
+                    selected++;
+                } else if (key == 72 && selected > 0) { // Up Arrow
+                    selected--;
+                }
+            } else if (key == 13) { // Enter key
                 system("cls");
-                productmenu();
-                break;
-            case 2:
-                system("cls");
-                billmenu();
-                break;
-            case 3:
-                return;
-            default:
-                cout << "Invalid choice, please try again." << endl;
-                break;
+                switch (selected) {
+                    case 0:
+                        productmenu();
+                        break;
+                    case 1:
+                        billmenu();
+                        break;
+                    case 2:
+                        return;
+                }
             }
         }
     }
+    // void nextmenu()
+    // {
+    //     while (true)
+    //     {
+    //         displayMenuHeader("POINT OF SALE SYSTEM");
+    //         cout << "1. Product Management\n"
+    //             << "2. Generate Bill\n"
+    //             << "3. Back to Main Menu\n";
+    //         choice = getUserChoice("Enter your choice: ");
+
+    //         switch (choice)
+    //         {
+    //         case 1:
+    //             system("cls");
+    //             productmenu();
+    //             break;
+    //         case 2:
+    //             system("cls");
+    //             billmenu();
+    //             break;
+    //         case 3:
+    //             return;
+    //         default:
+    //             cout << "Invalid choice, please try again." << endl;
+    //             break;
+    //         }
+    //     }
+    // }
 
     void billmenu()
     {
