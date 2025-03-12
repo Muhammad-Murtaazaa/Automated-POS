@@ -998,19 +998,23 @@ public:
     
             key = _getch(); // Read key input
             if (key == 224) 
-            { // Arrow keys return 224 first
+            { 
+                // Arrow keys return 224 first
                 key = _getch();
                 if (key == 80 && selected < menusize - 1) 
-                { // Down Arrow
+                { 
+                    // Down Arrow
                     selected++;
                 }
                  else if (key == 72 && selected > 0) 
-                 { // Up Arrow
+                { 
+                    // Up Arrow
                     selected--;
                 }
             } 
             else if (key == 13) 
-            { // Enter key
+            { 
+                // Enter key
                 system("cls");
                 switch (selected) 
                 {
