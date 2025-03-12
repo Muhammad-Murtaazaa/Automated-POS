@@ -977,31 +977,43 @@ public:
     
         hideCursor();
     
-        while (true) {
+        while (true) 
+        {
             system("cls");
             displayMenuHeader("POINT OF SALE SYSTEM");
     
-            for (int i = 0; i < menusize; i++) {
-                if (i == selected) {
+            for (int i = 0; i < menusize; i++) 
+            {
+                if (i == selected) 
+                {
                     setConsoleColor(12);  // Highlighted option (Red)
                     cout << " > " << menuitems[i] << endl;
                     setConsoleColor(15);  // Reset color (White)
-                } else {
+                }
+                 else 
+                 {
                     cout << "   " << menuitems[i] << endl;
                 }
             }
     
             key = _getch(); // Read key input
-            if (key == 224) { // Arrow keys return 224 first
+            if (key == 224) 
+            { // Arrow keys return 224 first
                 key = _getch();
-                if (key == 80 && selected < menusize - 1) { // Down Arrow
+                if (key == 80 && selected < menusize - 1) 
+                { // Down Arrow
                     selected++;
-                } else if (key == 72 && selected > 0) { // Up Arrow
+                }
+                 else if (key == 72 && selected > 0) 
+                 { // Up Arrow
                     selected--;
                 }
-            } else if (key == 13) { // Enter key
+            } 
+            else if (key == 13) 
+            { // Enter key
                 system("cls");
-                switch (selected) {
+                switch (selected) 
+                {
                     case 0:
                         productmenu();
                         break;
