@@ -1026,35 +1026,7 @@ public:
             }
         }
     }
-    // void nextmenu()
-    // {
-    //     while (true)
-    //     {
-    //         displayMenuHeader("POINT OF SALE SYSTEM");
-    //         cout << "1. Product Management\n"
-    //             << "2. Generate Bill\n"
-    //             << "3. Back to Main Menu\n";
-    //         choice = getUserChoice("Enter your choice: ");
-
-    //         switch (choice)
-    //         {
-    //         case 1:
-    //             system("cls");
-    //             productmenu();
-    //             break;
-    //         case 2:
-    //             system("cls");
-    //             billmenu();
-    //             break;
-    //         case 3:
-    //             return;
-    //         default:
-    //             cout << "Invalid choice, please try again." << endl;
-    //             break;
-    //         }
-    //     }
-    // }
-
+    
     void billmenu()
     {
         while (true)
