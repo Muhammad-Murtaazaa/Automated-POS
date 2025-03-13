@@ -1162,6 +1162,7 @@ public:
         cin >> stock;
         inventory.addproduct(id, name, price, stock);
         cout << "Product added successfully!\n";
+        inventory.displaystock();
     }
 
     void removeProduct()
