@@ -1073,67 +1073,78 @@ public:
         }
     }
 
-    void productmenu()
-    {
-        while (true)
-        {
+    
+
+    void productmenu() {
+        const int menusize = 8;
+        string menuitems[menusize] = {
+            "Add Product", "Remove Product", "Update Product",
+            "Display Stock", "Apply Discount",
+            "Undo product addition / removal", "Redo product addition / removal",
+            "Back"
+        };
+        int selected = 0;
+        int key;
+    
+        hideCursor();
+    
+        while (true) {
+            system("cls");
             displayMenuHeader("PRODUCT MANAGEMENT");
-            cout << "1. Add Product\n"
-                << "2. Remove Product\n"
-                << "3. Update Product\n"
-                << "4. Display Stock\n"
-                << "5. Apply Discount\n"
-                << "6. Undo product addition / removal\n"
-                << "7. Redo product addition / removal\n"
-                << "8. Back\n";
-            choice = getUserChoice("Enter your choice: ");
-
-            switch (choice)
-            {
-            case 1:
+    
+            for (int i = 0; i < menusize; i++) {
+                if (i == selected) {
+                    setConsoleColor(12);  // Highlighted option (Red)
+                    cout << " > " << menuitems[i] << endl;
+                    setConsoleColor(15);  // Reset color (White)
+                } else {
+                    cout << "   " << menuitems[i] << endl;
+                }
+            }
+    
+            key = _getch(); // Read key input
+            if (key == 224) { // Arrow keys return 224 first
+                key = _getch();
+                if (key == 80 && selected < menusize - 1) { // Down Arrow
+                    selected++;
+                } else if (key == 72 && selected > 0) { // Up Arrow
+                    selected--;
+                }
+            } else if (key == 13) { // Enter key
                 system("cls");
-                inventory.displaystock();
-                addproduct();
-                inventory.displaystock();
-                break;
-            case 2:
-                system("cls");
-                inventory.displaystock();
-                removeProduct();
-                break;
-            case 3:
-                system("cls");
-                inventory.displaystock();
-                updateProduct();
-                break;
-            case 4:
-                system("cls");
-
-                inventory.displaystock();
-                break;
-            case 5:
-                system("cls");
-                inventory.displaystock();
-                applyDiscount();
-                break;
-            case 6:
-                system("cls");
-                inventory.undo();
-                break;
-            case 7:
-                system("cls");
-                inventory.redo();
-                break;
-            case 8:
-                system("cls");
-                return;
-            default:
-                cout << "Invalid choice, please try again." << endl;
-                break;
+                switch (selected) {
+                    case 0:
+                        inventory.displaystock();
+                        addproduct();
+                        inventory.displaystock();
+                        break;
+                    case 1:
+                        inventory.displaystock();
+                        removeProduct();
+                        break;
+                    case 2:
+                        inventory.displaystock();
+                        updateProduct();
+                        break;
+                    case 3:
+                        inventory.displaystock();
+                        break;
+                    case 4:
+                        inventory.displaystock();
+                        applyDiscount();
+                        break;
+                    case 5:
+                        inventory.undo();
+                        break;
+                    case 6:
+                        inventory.redo();
+                        break;
+                    case 7:
+                        return;
+                }
             }
         }
     }
-
     void addproduct()
     {
         displayMenuHeader("ADD PRODUCT");
