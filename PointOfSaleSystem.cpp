@@ -141,32 +141,30 @@ public:
 
     void savestock() const
     {
-        ofstream file("inventory.txt");
-        if (!file.is_open())
-        {
-            cout << "Error: Could not open the file to save inventory!" << endl;
-            return;
-        }
+    ofstream file("inventory.csv");
+    if (!file.is_open())
+    {
+        cout << "Error: Could not open the file to save inventory!" << endl;
+        return;
+    }
 
-        file << left << setw(10) << "ID"
-            << setw(20) << "Name"
-            << setw(10) << "Quantity"
-            << setw(10) << "Price" << endl;
-        file << string(50, '-') << endl;
+    // Writing CSV headers
+    file << "ID,Name,Quantity,Price\n";
 
-        product* current = head;
-        while (current != NULL)
-        {
-            file << left << setw(10) << current->id
-                << setw(20) << current->name
-                << setw(10) << current->stock
-                << setw(10) << fixed << setprecision(2) << current->price
-                << endl;
-            current = current->next;
-        }
+    product* current = head;
+    while (current != NULL)
+    {
+        // Writing product details in CSV format
+        file << current->id << ","
+             << "\"" << current->name << "\"," // Enclosing in quotes to handle names with commas
+             << current->stock << ","
+             << fixed << setprecision(2) << current->price
+             << "\n";
+        current = current->next;
+    }
 
-        file.close();
-        cout << "Inventory successfully saved/updated to 'inventory.txt'." << endl;
+    file.close();
+    cout << "Inventory saved to 'inventory.csv'." << endl;
     }
 
     bool productexists(int id)

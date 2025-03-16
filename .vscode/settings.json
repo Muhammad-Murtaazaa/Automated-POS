@@ -3,6 +3,7 @@
         "iostream": "cpp",
         "iomanip": "cpp",
         "ostream": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "xutility": "cpp"
     }
 }
