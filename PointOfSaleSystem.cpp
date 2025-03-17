@@ -114,7 +114,7 @@ public:
     int stock;
     product* next;
     product* prev;
-
+    
     product(int id, string name, double price, int stock)
     {
         this->id = id;
